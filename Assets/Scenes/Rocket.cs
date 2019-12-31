@@ -16,25 +16,30 @@ public class Rocket : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        ProcessInput();
+        Rotating();
+        Thrust();
+        Sound();
     }
 
-    void ProcessInput()
+    void Thrust()
     {
         if (Input.GetKey(KeyCode.Space))
         {
             rigidBody.AddRelativeForce(Vector3.up);
             print("Thrusting");
+        }           
+    }
+
+    void Sound()
+    {
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
             audiosource.Play();
         }
         else if (Input.GetKeyUp(KeyCode.Space))
         {
             audiosource.Stop();
         }
-
-        
-        Rotating();
-
     }
 
     void Rotating()
