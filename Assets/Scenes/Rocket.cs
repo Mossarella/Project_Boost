@@ -10,6 +10,14 @@ public class Rocket : MonoBehaviour
     [SerializeField] float rThrust = 100f;
     [SerializeField] float accelerateThrust = 100f;
 
+    [SerializeField] AudioClip mainEngine;
+    [SerializeField] AudioClip explode;
+    [SerializeField] AudioClip loadLevel;
+
+    [SerializeField] ParticleSystem mainEngineParticle;
+    [SerializeField] ParticleSystem explodeParticle;
+    [SerializeField] ParticleSystem loadLevelParticle;
+
     State state = State.Alive;
 
     // Start is called before the first frame update
@@ -22,13 +30,19 @@ public class Rocket : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        Invoke("Spawn",0.8f);
+    }
+
+    void Spawn()
+    {
+
         if (state == State.Alive)
         {
-            Rotating();
             Thrust();
-            Sound();
+            Rotating();
         }
     }
+
     void OnCollisionEnter(Collision collision)
     {
         if (state != State.Alive)
@@ -41,11 +55,20 @@ public class Rocket : MonoBehaviour
             case "Friendly":           
             break;
             case "Finish":
-                state = State.Transcend;
-                Invoke("LoadNextLevel", 1f); //parameter this "time"
+                audiosource.Stop();
+                mainEngineParticle.Stop();
+                loadLevelParticle.Play();
+                state = State.Transcend; 
+                audiosource.PlayOneShot(loadLevel);                 
+                Invoke("LoadNextLevel", 1f); 
                 break;
-            default:
-                state = State.Dying;
+            
+            case "Deadly":
+                audiosource.Stop();
+                mainEngineParticle.Stop();
+                explodeParticle.Play();
+                state = State.Dying;            
+                audiosource.PlayOneShot(explode);                 
                 print("Ded");
                 Invoke("LoadFirstLevel", 1f);
                 break;
@@ -69,21 +92,22 @@ public class Rocket : MonoBehaviour
 
         if (Input.GetKey(KeyCode.Space))
         {
-            rigidBody.AddRelativeForce(Vector3.up *thrustThisFrame);
-        }           
-    }
-
-    void Sound()
-    {
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            audiosource.Play();
+            rigidBody.AddRelativeForce(Vector3.up * thrustThisFrame);
+            mainEngineParticle.Play();
+            if (!audiosource.isPlaying) // so it doesn't layer
+            {                
+                audiosource.PlayOneShot(mainEngine);
+            }
         }
-        else if (Input.GetKeyUp(KeyCode.Space))
+       
+        else
         {
+            mainEngineParticle.Stop();
             audiosource.Stop();
         }
     }
+
+   
 
     void Rotating()
     {
