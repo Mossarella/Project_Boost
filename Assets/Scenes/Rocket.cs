@@ -18,6 +18,8 @@ public class Rocket : MonoBehaviour
     [SerializeField] ParticleSystem explodeParticle;
     [SerializeField] ParticleSystem loadLevelParticle;
 
+    bool Deadlytouch = true;
+
     State state = State.Alive;
 
     // Start is called before the first frame update
@@ -31,6 +33,10 @@ public class Rocket : MonoBehaviour
     void Update()
     {
         Invoke("Spawn",0.8f);
+        if (Debug.isDebugBuild)
+        {
+            Cheatcodes();
+        }
     }
 
     void Spawn()
@@ -45,7 +51,7 @@ public class Rocket : MonoBehaviour
 
     void OnCollisionEnter(Collision collision)
     {
-        if (state != State.Alive)
+        if (state != State.Alive|| !Deadlytouch)
         {
             return;
         }
@@ -111,6 +117,10 @@ public class Rocket : MonoBehaviour
 
     void Rotating()
     {
+        if (!Input.GetKey(KeyCode.Space))
+        {
+            return; 
+        }
         rigidBody.freezeRotation = true; // pause physics on press
         
         
@@ -126,5 +136,18 @@ public class Rocket : MonoBehaviour
         }
         rigidBody.freezeRotation = false; //resume physics when not pressed
         
+    }
+
+    void Cheatcodes()
+    {
+        if (Input.GetKeyDown(KeyCode.C))
+        {
+            Deadlytouch=!Deadlytouch ;
+            print ("god mode activated");
+        }
+        if (Input.GetKeyDown(KeyCode.L))
+        {
+            LoadNextLevel();
+        }
     }
 }
